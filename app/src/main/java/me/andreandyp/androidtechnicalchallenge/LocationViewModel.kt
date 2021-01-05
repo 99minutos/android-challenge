@@ -1,27 +1,35 @@
 package me.andreandyp.androidtechnicalchallenge
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.andreandyp.androidtechnicalchallenge.network.API
-import me.andreandyp.androidtechnicalchallenge.network.polygon.PolygonNetwork
+import me.andreandyp.androidtechnicalchallenge.repository.AppRepository
 
 class LocationViewModel : ViewModel() {
     private val _geoPoints = MutableLiveData<List<LatLng>>()
     val geoPoints: LiveData<List<LatLng>>
         get() = _geoPoints
 
-    fun onReadyMap() {
-        val hidalgo = LatLng(19.444747420622267, -99.14502638852542)
-        val morelos = LatLng(19.43976245268299, -99.11815379002334)
-        val candelaria = LatLng(19.42958433453182, -99.12062078267273)
-        val balderas = LatLng(19.42725781796235, -99.14899119814048)
+    val zipCode = MutableLiveData<String>()
 
-        _geoPoints.value = listOf(hidalgo, morelos, candelaria, balderas)
+    private val _centerPoint = MutableLiveData<LatLng>()
+    val centerPoint: LiveData<LatLng>
+        get() = _centerPoint
+
+    private val repository = AppRepository()
+
+    fun onReadyMap() {
+        val downtown = LatLng(19.432723850153973, -99.13313084558676)
+        _centerPoint.value = downtown
+    }
+
+    fun getPolygonCoordinates(zipCode: String) {
+        viewModelScope.launch {
+            val coordinates: List<LatLng> = repository.getPolygonCoordinates(zipCode).coordinates
+            _geoPoints.value = coordinates
+        }
     }
 }
