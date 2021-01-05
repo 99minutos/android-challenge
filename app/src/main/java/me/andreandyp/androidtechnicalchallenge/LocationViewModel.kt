@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import me.andreandyp.androidtechnicalchallenge.repository.AppRepository
+import me.andreandyp.androidtechnicalchallenge.repository.models.PolygonCoordinates
+import me.andreandyp.androidtechnicalchallenge.repository.models.ZipCodeSettlements
 
 class LocationViewModel : ViewModel() {
     private val _geoPoints = MutableLiveData<List<LatLng>>()
@@ -19,6 +21,10 @@ class LocationViewModel : ViewModel() {
     val centerPoint: LiveData<LatLng>
         get() = _centerPoint
 
+    private val _settlements = MutableLiveData<ZipCodeSettlements>()
+    val settlements: LiveData<ZipCodeSettlements>
+        get() = _settlements
+
     private val repository = AppRepository()
 
     fun onReadyMap() {
@@ -28,8 +34,15 @@ class LocationViewModel : ViewModel() {
 
     fun getPolygonCoordinates(zipCode: String) {
         viewModelScope.launch {
-            val coordinates: List<LatLng> = repository.getPolygonCoordinates(zipCode).coordinates
-            _geoPoints.value = coordinates
+            val polygonCoordinates: PolygonCoordinates = repository.getPolygonCoordinates(zipCode)
+            _geoPoints.value = polygonCoordinates.coordinates
+        }
+    }
+
+    fun getPolygonsDetails(zipCode: String) {
+        viewModelScope.launch {
+            val settlements: ZipCodeSettlements = repository.getSettlementsOfZipCode(zipCode)
+            _settlements.value = settlements
         }
     }
 }

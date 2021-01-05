@@ -5,5 +5,7 @@
     <string name="state">Entidad</string>
     <string name="city">Ciudad</string>
     <string name="municipality">Alcaldía o municipio</string>
-    <string name="suburb">Colonia</string>
+    <string name="settlement">Colonia</string>
+    <string name="country_default">México</string>
+    <string name="settlement_example">Polanco</string>
 </resources>

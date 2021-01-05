@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -14,7 +15,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Polygon
 import com.google.android.gms.maps.model.PolygonOptions
+import com.google.android.material.textfield.TextInputEditText
 import me.andreandyp.androidtechnicalchallenge.databinding.LocationFragmentBinding
+import me.andreandyp.androidtechnicalchallenge.repository.models.ZipCodeSettlements
 
 class LocationFragment : Fragment() {
 
@@ -48,14 +51,16 @@ class LocationFragment : Fragment() {
 
         viewModel.centerPoint.observe(viewLifecycleOwner) { point: LatLng ->
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 14f))
-
         }
 
-        viewModel.zipCode.observe(viewLifecycleOwner) {
-            if (it.length == 5) {
-                viewModel.getPolygonCoordinates(it)
+        viewModel.zipCode.observe(viewLifecycleOwner) { zipCode: String ->
+            if (zipCode.length == 5) {
+                viewModel.getPolygonCoordinates(zipCode)
+                viewModel.getPolygonsDetails(zipCode)
             }
         }
+
+        viewModel.settlements.observe(viewLifecycleOwner) { updateSettlements(it) }
     }
 
     private fun updatePolygon(points: List<LatLng>) {
@@ -67,5 +72,18 @@ class LocationFragment : Fragment() {
             geodesic(true)
         }
         currentPolygon = map.addPolygon(polygonOptions)
+    }
+
+    private fun updateSettlements(settlements: ZipCodeSettlements) {
+        val autoCompleteTextView = binding.autocompleteSettlement
+        val countryEditText: TextInputEditText = binding.tietCountry
+        val adapter = ArrayAdapter(
+            requireContext(),
+            R.layout.settlement_item,
+            settlements.settlements
+        )
+        autoCompleteTextView.setAdapter(adapter)
+
+        countryEditText.setText(R.string.country_default)
     }
 }
