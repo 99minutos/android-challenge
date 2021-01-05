@@ -1,9 +1,15 @@
 package me.andreandyp.androidtechnicalchallenge
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.andreandyp.androidtechnicalchallenge.network.API
+import me.andreandyp.androidtechnicalchallenge.network.polygon.PolygonNetwork
 
 class LocationViewModel : ViewModel() {
     private val _geoPoints = MutableLiveData<List<LatLng>>()
