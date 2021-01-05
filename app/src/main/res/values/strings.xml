@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Android Technical Challenge</string>
+    <string name="zip_code">Código Postal</string>
+    <string name="country">País</string>
+    <string name="state">Entidad</string>
+    <string name="city">Ciudad</string>
+    <string name="municipality">Alcaldía o municipio</string>
+    <string name="suburb">Colonia</string>
+</resources>
