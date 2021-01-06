@@ -7,7 +7,7 @@
     <string name="municipality">Alcaldía o municipio</string>
     <string name="settlement">Colonia</string>
     <string name="country_default">México</string>
-    <string name="settlement_example">Polanco</string>
     <string name="loading_polygons">Obteniendo área…</string>
     <string name="loading_settlements">Obteniendo datos del código postal…</string>
+    <string name="settlement_default">Selecciona…</string>
 </resources>

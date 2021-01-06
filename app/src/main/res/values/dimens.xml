@@ -2,4 +2,7 @@
 <resources>
     <dimen name="horizontal_margin">16dp</dimen>
     <dimen name="center_margin">8dp</dimen>
+    <dimen name="settlement_item_padding">16dp</dimen>
+    <dimen name="dialog_padding">16dp</dimen>
+    <dimen name="vertical_padding">16dp</dimen>
 </resources>
