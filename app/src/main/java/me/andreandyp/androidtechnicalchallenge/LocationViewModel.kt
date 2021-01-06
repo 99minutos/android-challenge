@@ -1,6 +1,5 @@
 package me.andreandyp.androidtechnicalchallenge
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,6 +26,14 @@ class LocationViewModel : ViewModel() {
     val settlements: LiveData<ZipCodeSettlements>
         get() = _settlements
 
+    private val _statusPolygons = MutableLiveData<NetworkResponse<Any?>>()
+    val statusPolygons: LiveData<NetworkResponse<Any?>>
+        get() = _statusPolygons
+
+    private val _statusSettlements = MutableLiveData<NetworkResponse<Any?>>()
+    val statusSettlements: LiveData<NetworkResponse<Any?>>
+        get() = _statusSettlements
+
     private val repository = AppRepository()
 
     fun onReadyMap() {
@@ -36,22 +43,28 @@ class LocationViewModel : ViewModel() {
 
     fun getPolygonCoordinates(zipCode: String) {
         viewModelScope.launch {
-            when (val response = repository.getPolygonCoordinates(zipCode)) {
+            _statusPolygons.value = NetworkResponse.Loading
+            val response = repository.getPolygonCoordinates(zipCode)
+            when (response) {
                 is NetworkResponse.Success -> {
                     val polygonCoordinates = response.data as PolygonCoordinates
                     _geoPoints.value = polygonCoordinates.coordinates
+                    _centerPoint.value = polygonCoordinates.coordinates[0]
                 }
                 is NetworkResponse.Error -> {
                 }
                 is NetworkResponse.NetworkError -> {
                 }
             }
+            _statusPolygons.value = response
         }
     }
 
     fun getPolygonsDetails(zipCode: String) {
+        _statusSettlements.value = NetworkResponse.Loading
         viewModelScope.launch {
-            when (val response = repository.getSettlementsOfZipCode(zipCode)) {
+            val response = repository.getSettlementsOfZipCode(zipCode)
+            when (response) {
                 is NetworkResponse.Success -> {
                     _settlements.value = response.data as ZipCodeSettlements
                 }
@@ -60,6 +73,7 @@ class LocationViewModel : ViewModel() {
                 is NetworkResponse.NetworkError -> {
                 }
             }
+            _statusSettlements.value = response
         }
     }
 }
