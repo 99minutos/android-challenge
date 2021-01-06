@@ -6,10 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/location_fragment"
+        android:name="me.andreandyp.androidtechnicalchallenge.LocationFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="me.andreandyp.androidtechnicalchallenge.LocationFragment"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout="@layout/location_fragment" />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map_polygon"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/horizontal_margin"
+        android:layout_marginTop="@dimen/vertical_padding"
+        android:layout_marginEnd="@dimen/horizontal_margin"
+        android:layout_marginBottom="@dimen/vertical_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/location_fragment" />
 </androidx.constraintlayout.widget.ConstraintLayout>
