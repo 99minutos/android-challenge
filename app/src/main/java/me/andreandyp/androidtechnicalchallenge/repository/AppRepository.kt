@@ -4,6 +4,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.andreandyp.androidtechnicalchallenge.network.API
 import me.andreandyp.androidtechnicalchallenge.network.NetworkResponse
+import me.andreandyp.androidtechnicalchallenge.repository.models.asPolygonCoordinates
+import me.andreandyp.androidtechnicalchallenge.repository.models.asZipCodeSettlements
 import retrofit2.HttpException
 import java.io.IOException
 
