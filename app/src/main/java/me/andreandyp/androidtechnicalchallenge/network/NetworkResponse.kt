@@ -1,5 +1,8 @@
 package me.andreandyp.androidtechnicalchallenge.network
 
+/**
+ * Wrapper for the network status.
+ */
 sealed class NetworkResponse<out T> {
     data class Success<out T>(val data: T) : NetworkResponse<T>()
     data class Error<out T>(val statusCode: Int) : NetworkResponse<T>()

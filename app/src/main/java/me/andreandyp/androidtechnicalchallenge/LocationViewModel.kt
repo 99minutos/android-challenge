@@ -11,6 +11,10 @@ import me.andreandyp.androidtechnicalchallenge.repository.AppRepository
 import me.andreandyp.androidtechnicalchallenge.repository.models.PolygonCoordinates
 import me.andreandyp.androidtechnicalchallenge.repository.models.ZipCodeSettlements
 
+/**
+ * ViewModel that communicates the data from the app's repository, the [LocationFragment] logic
+ * and the [MainActivity] logic.
+ */
 class LocationViewModel : ViewModel() {
     private val _geoPoints = MutableLiveData<List<LatLng>>()
     val geoPoints: LiveData<List<LatLng>>
@@ -37,10 +41,19 @@ class LocationViewModel : ViewModel() {
     private val repository = AppRepository()
     private val downtown = LatLng(19.432723850153973, -99.13313084558676)
 
+    /**
+     * Callback function for OnReadyMap event.
+     */
     fun onReadyMap() {
         _centerPoint.value = downtown
     }
 
+    /**
+     * Gets the polygon of a zip code from the app's repository
+     * and sets the map's zoom.
+     * If the response is not successful, the zoom is set to downtown.
+     * @param zipCode The zip code of the polygon that we want to get.
+     */
     fun getPolygonCoordinates(zipCode: String) {
         viewModelScope.launch {
             _statusPolygons.value = NetworkResponse.Loading
@@ -57,10 +70,15 @@ class LocationViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Gets the settlements details of the zip code from the repository.
+     * If the response was not successful, a default value is set.
+     * @param zipCode The zip code of which we want to get the details.
+     */
     fun getPolygonsDetails(zipCode: String) {
         _statusSettlements.value = NetworkResponse.Loading
         viewModelScope.launch {
-            val response = repository.getSettlementsOfZipCode(zipCode)
+            val response = repository.getDetailsOfZipCode(zipCode)
             if (response is NetworkResponse.Success) {
                 _settlements.value = response.data as ZipCodeSettlements
             } else {

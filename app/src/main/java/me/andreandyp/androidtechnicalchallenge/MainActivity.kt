@@ -36,6 +36,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Updates the location of the current polygon on the map.
+     * @param points the polygon vertices obtained from the repository.
+     */
     private fun updatePolygon(points: List<LatLng>) {
         currentPolygon?.remove()
         val polygonOptions = PolygonOptions().run {

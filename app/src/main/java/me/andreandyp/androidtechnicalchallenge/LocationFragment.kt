@@ -81,47 +81,67 @@ class LocationFragment : Fragment() {
 
         viewModel.zipCode.observe(viewLifecycleOwner) { getZipCodeInformation(it) }
 
-        viewModel.settlements.observe(viewLifecycleOwner) { updateSettlements(it) }
+        viewModel.settlements.observe(viewLifecycleOwner) { updatePolygonDetails(it) }
 
         viewModel.statusPolygons.observe(viewLifecycleOwner) {
-            when (it) {
-                is NetworkResponse.Loading -> loadingPolygonsDialog.show()
-                is NetworkResponse.Error -> {
-                    loadingPolygonsDialog.cancel()
-                    if (it.statusCode == 500) {
-                        errorPolygonDialog.show()
-                    } else {
-                        errorServerDialog.show()
-                    }
-                }
-                is NetworkResponse.NetworkError -> {
-                    loadingPolygonsDialog.cancel()
-                    errorNetworkDialog.show()
-                }
-                else -> loadingPolygonsDialog.cancel()
-            }
+            showStatusOfPolygonsService(it)
         }
         viewModel.statusSettlements.observe(viewLifecycleOwner) {
-            when (it) {
-                is NetworkResponse.Loading -> loadingSettlementsDialog.show()
-                is NetworkResponse.Error -> {
-                    loadingSettlementsDialog.cancel()
-                    if (it.statusCode == 404) {
-                        errorSepomexDialog.show()
-                    } else {
-                        errorServerDialog.show()
-                    }
-                }
-                is NetworkResponse.NetworkError -> {
-                    loadingSettlementsDialog.cancel()
-                    errorNetworkDialog.show()
-                }
-                else -> loadingSettlementsDialog.cancel()
-            }
+            showStatusOfSettlementsService(it)
         }
     }
 
-    private fun updateSettlements(settlements: ZipCodeSettlements) {
+    /**
+     * Shows an [AlertDialog] based of status' service.
+     * @param [status] current status of the service.
+     */
+    private fun showStatusOfPolygonsService(status: NetworkResponse<Any?>?) {
+        when (status) {
+            is NetworkResponse.Loading -> loadingPolygonsDialog.show()
+            is NetworkResponse.Error -> {
+                loadingPolygonsDialog.cancel()
+                if (status.statusCode == 500) {
+                    errorPolygonDialog.show()
+                } else {
+                    errorServerDialog.show()
+                }
+            }
+            is NetworkResponse.NetworkError -> {
+                loadingPolygonsDialog.cancel()
+                errorNetworkDialog.show()
+            }
+            else -> loadingPolygonsDialog.cancel()
+        }
+    }
+
+    /**
+     * Shows an [AlertDialog] based of status' service.
+     * @param [status] current status of the service.
+     */
+    private fun showStatusOfSettlementsService(status: NetworkResponse<Any?>?) {
+        when (status) {
+            is NetworkResponse.Loading -> loadingSettlementsDialog.show()
+            is NetworkResponse.Error -> {
+                loadingSettlementsDialog.cancel()
+                if (status.statusCode == 404) {
+                    errorSepomexDialog.show()
+                } else {
+                    errorServerDialog.show()
+                }
+            }
+            is NetworkResponse.NetworkError -> {
+                loadingSettlementsDialog.cancel()
+                errorNetworkDialog.show()
+            }
+            else -> loadingSettlementsDialog.cancel()
+        }
+    }
+
+    /**
+     * Updates polygon's details in view.
+     * @param settlements zip code details and settlements.
+     */
+    private fun updatePolygonDetails(settlements: ZipCodeSettlements) {
         val autoCompleteTextView = binding.autocompleteSettlement
         val countryEditText: TextInputEditText = binding.tietCountry
         val adapter = ArrayAdapter(
@@ -134,6 +154,11 @@ class LocationFragment : Fragment() {
         countryEditText.setText(R.string.country_default)
     }
 
+    /**
+     * Creates an [AlertDialog] that will be used to show "loading" status.
+     * @param layoutId ID of the layout that will be used as view of the dialog.
+     * @return an [AlertDialog] built.
+     */
     private fun createLoadingDialog(layoutId: Int): AlertDialog {
         return AlertDialog.Builder(requireContext()).run {
             setIcon(android.R.drawable.progress_horizontal)
@@ -143,15 +168,23 @@ class LocationFragment : Fragment() {
         }
     }
 
+    /**
+     * Creates an [AlertDialog] that will show "error" status.
+     * @param messageId ID of the string that will be used as the message of the dialog.
+     * @param positiveId ID of the string that will be used as the text of the positive message.
+     * @param negativeId ID of the string that will be used as the text of the positive message.
+     * @param actionPositive action executed when the user chooses the positive action.
+     * @return an [AlertDialog] built.
+     */
     private fun createDialog(
         messageId: Int,
         positiveId: Int,
         negativeId: Int?,
-        action: ((DialogInterface, Int) -> Unit)
+        actionPositive: ((DialogInterface, Int) -> Unit)
     ): AlertDialog {
         return AlertDialog.Builder(requireContext()).run {
             setMessage(messageId)
-            setPositiveButton(positiveId, action)
+            setPositiveButton(positiveId, actionPositive)
             negativeId?.let {
                 setNegativeButton(negativeId) { dialogInterface: DialogInterface, _: Int ->
                     dialogInterface.cancel()
@@ -161,6 +194,10 @@ class LocationFragment : Fragment() {
         }
     }
 
+    /**
+     * Call the ViewModel when the zip code is fulfilled.
+     * @param zipCode the zip code
+     */
     private fun getZipCodeInformation(zipCode: String) {
         if (zipCode.length == 5) {
             viewModel.getPolygonCoordinates(zipCode)

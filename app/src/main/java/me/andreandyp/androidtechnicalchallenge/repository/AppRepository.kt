@@ -9,11 +9,21 @@ import me.andreandyp.androidtechnicalchallenge.repository.models.asZipCodeSettle
 import retrofit2.HttpException
 import java.io.IOException
 
+/**
+ * Repository to access to the data from the API.
+ */
 class AppRepository {
-    suspend fun getPolygonCoordinates(zip: String): NetworkResponse<Any?> {
+
+    /**
+     * Calls the polygon API with the required zip code.
+     * @param zipCode the zip code required.
+     * @return a [NetworkResponse] wrapper with the results transformed to domain objects
+     * or the status code when the request failed.
+     */
+    suspend fun getPolygonCoordinates(zipCode: String): NetworkResponse<Any?> {
         return withContext(Dispatchers.IO) {
             try {
-                val polygonCoordinatesNetwork = API.polygons.getPolygonVertices(zip)
+                val polygonCoordinatesNetwork = API.polygons.getPolygonVertices(zipCode)
                 val polygonCoordinates = polygonCoordinatesNetwork.asPolygonCoordinates()
                 return@withContext NetworkResponse.Success(polygonCoordinates)
             } catch (e: HttpException) {
@@ -24,10 +34,16 @@ class AppRepository {
         }
     }
 
-    suspend fun getSettlementsOfZipCode(zip: String): NetworkResponse<Any?> {
+    /**
+     * Calls the Sepomex API with the required zip code.
+     * @param zipCode the zip code required.
+     * @return a [NetworkResponse] wrapper with the results transformed to domain objects
+     * or the status code when the request failed.
+     */
+    suspend fun getDetailsOfZipCode(zipCode: String): NetworkResponse<Any?> {
         return withContext(Dispatchers.IO) {
             try {
-                val zipCodeDetails = API.sepomex.getZipCodeDetail(zip)
+                val zipCodeDetails = API.sepomex.getZipCodeDetail(zipCode)
                 val settlements = zipCodeDetails.asZipCodeSettlements()
                 return@withContext NetworkResponse.Success(settlements)
             } catch (e: HttpException) {
