@@ -35,9 +35,9 @@ class LocationViewModel : ViewModel() {
         get() = _statusSettlements
 
     private val repository = AppRepository()
+    private val downtown = LatLng(19.432723850153973, -99.13313084558676)
 
     fun onReadyMap() {
-        val downtown = LatLng(19.432723850153973, -99.13313084558676)
         _centerPoint.value = downtown
     }
 
@@ -45,17 +45,14 @@ class LocationViewModel : ViewModel() {
         viewModelScope.launch {
             _statusPolygons.value = NetworkResponse.Loading
             val response = repository.getPolygonCoordinates(zipCode)
-            when (response) {
-                is NetworkResponse.Success -> {
-                    val polygonCoordinates = response.data as PolygonCoordinates
-                    _geoPoints.value = polygonCoordinates.coordinates
-                    _centerPoint.value = polygonCoordinates.coordinates[0]
-                }
-                is NetworkResponse.Error -> {
-                }
-                is NetworkResponse.NetworkError -> {
-                }
+            if (response is NetworkResponse.Success) {
+                val polygonCoordinates = response.data as PolygonCoordinates
+                _geoPoints.value = polygonCoordinates.coordinates
+                _centerPoint.value = polygonCoordinates.coordinates[0]
+            } else {
+                _centerPoint.value = downtown
             }
+
             _statusPolygons.value = response
         }
     }
@@ -64,15 +61,12 @@ class LocationViewModel : ViewModel() {
         _statusSettlements.value = NetworkResponse.Loading
         viewModelScope.launch {
             val response = repository.getSettlementsOfZipCode(zipCode)
-            when (response) {
-                is NetworkResponse.Success -> {
-                    _settlements.value = response.data as ZipCodeSettlements
-                }
-                is NetworkResponse.Error -> {
-                }
-                is NetworkResponse.NetworkError -> {
-                }
+            if (response is NetworkResponse.Success) {
+                _settlements.value = response.data as ZipCodeSettlements
+            } else {
+                _settlements.value = ZipCodeSettlements("", "", listOf(), "")
             }
+
             _statusSettlements.value = response
         }
     }

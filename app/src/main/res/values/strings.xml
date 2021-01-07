@@ -10,4 +10,14 @@
     <string name="loading_polygons">Obteniendo área…</string>
     <string name="loading_settlements">Obteniendo datos del código postal…</string>
     <string name="settlement_default">Selecciona…</string>
+    <string name="polygon_error">No se pudo obtener la ubicación del código postal.
+        Ingrese un código postal válido</string>
+    <string name="sepomex_error">No se pudieron obtener los datos del código postal.
+        Ingrese un código postal válido</string>
+    <string name="server_error">Error del servidor. Inténtalo de nuevo más tarde.</string>
+    <string name="network_error">Hubo un problema con tu conexión a Internet.
+        Verifica tu conexión e inténtalo de nuevo.</string>
+    <string name="ok">Aceptar</string>
+    <string name="retry">Reintentar</string>
+    <string name="cancel">Cancelar</string>
 </resources>

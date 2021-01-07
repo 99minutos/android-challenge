@@ -22,7 +22,9 @@ class LocationFragment : Fragment() {
     private lateinit var binding: LocationFragmentBinding
     private lateinit var loadingPolygonsDialog: AlertDialog
     private lateinit var loadingSettlementsDialog: AlertDialog
-    private lateinit var errorDialog: AlertDialog
+    private lateinit var errorPolygonDialog: AlertDialog
+    private lateinit var errorSepomexDialog: AlertDialog
+    private lateinit var errorServerDialog: AlertDialog
     private lateinit var errorNetworkDialog: AlertDialog
 
     override fun onCreateView(
@@ -33,6 +35,42 @@ class LocationFragment : Fragment() {
         binding.lifecycleOwner = this
         loadingPolygonsDialog = createLoadingDialog(R.layout.loading_polygon_dialog)
         loadingSettlementsDialog = createLoadingDialog(R.layout.loading_settlements_dialog)
+        errorPolygonDialog = createDialog(
+            R.string.polygon_error,
+            R.string.ok,
+            null
+        ) { dialogInterface: DialogInterface, _: Int ->
+            dialogInterface.cancel()
+        }
+        errorSepomexDialog = createDialog(
+            R.string.sepomex_error,
+            R.string.ok,
+            null
+        ) { dialogInterface: DialogInterface, _: Int ->
+            dialogInterface.cancel()
+        }
+        errorServerDialog = createDialog(
+            R.string.server_error,
+            R.string.retry,
+            R.string.cancel
+        ) { dialogInterface: DialogInterface, _: Int ->
+            dialogInterface.cancel()
+            val currentZipCode = viewModel.zipCode.value
+            currentZipCode?.let {
+                getZipCodeInformation(it)
+            }
+        }
+        errorNetworkDialog = createDialog(
+            R.string.network_error,
+            R.string.retry,
+            R.string.cancel
+        ) { dialogInterface: DialogInterface, _: Int ->
+            dialogInterface.cancel()
+            val currentZipCode = viewModel.zipCode.value
+            currentZipCode?.let {
+                getZipCodeInformation(it)
+            }
+        }
         return binding.root
     }
 
@@ -47,22 +85,38 @@ class LocationFragment : Fragment() {
 
         viewModel.statusPolygons.observe(viewLifecycleOwner) {
             when (it) {
-                is NetworkResponse.Loading -> {
-                    loadingPolygonsDialog.show()
-                }
-                else -> {
+                is NetworkResponse.Loading -> loadingPolygonsDialog.show()
+                is NetworkResponse.Error -> {
                     loadingPolygonsDialog.cancel()
+                    if (it.statusCode == 500) {
+                        errorPolygonDialog.show()
+                    } else {
+                        errorServerDialog.show()
+                    }
                 }
+                is NetworkResponse.NetworkError -> {
+                    loadingPolygonsDialog.cancel()
+                    errorNetworkDialog.show()
+                }
+                else -> loadingPolygonsDialog.cancel()
             }
         }
         viewModel.statusSettlements.observe(viewLifecycleOwner) {
             when (it) {
-                is NetworkResponse.Loading -> {
-                    loadingSettlementsDialog.show()
-                }
-                else -> {
+                is NetworkResponse.Loading -> loadingSettlementsDialog.show()
+                is NetworkResponse.Error -> {
                     loadingSettlementsDialog.cancel()
+                    if (it.statusCode == 404) {
+                        errorSepomexDialog.show()
+                    } else {
+                        errorServerDialog.show()
+                    }
                 }
+                is NetworkResponse.NetworkError -> {
+                    loadingSettlementsDialog.cancel()
+                    errorNetworkDialog.show()
+                }
+                else -> loadingSettlementsDialog.cancel()
             }
         }
     }
@@ -92,14 +146,16 @@ class LocationFragment : Fragment() {
     private fun createDialog(
         messageId: Int,
         positiveId: Int,
-        negativeId: Int,
+        negativeId: Int?,
         action: ((DialogInterface, Int) -> Unit)
     ): AlertDialog {
         return AlertDialog.Builder(requireContext()).run {
             setMessage(messageId)
             setPositiveButton(positiveId, action)
-            setNegativeButton(negativeId) { dialogInterface: DialogInterface, _: Int ->
-                dialogInterface.cancel()
+            negativeId?.let {
+                setNegativeButton(negativeId) { dialogInterface: DialogInterface, _: Int ->
+                    dialogInterface.cancel()
+                }
             }
             create()
         }
